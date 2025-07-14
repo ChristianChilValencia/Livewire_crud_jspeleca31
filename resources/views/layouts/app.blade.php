@@ -48,7 +48,7 @@
         <div class="row justify-content-center text-center mt-3">   
             <div class="col-md-12">
                 <p>
-                    Return to Website: <a href="https://www.usjr.edu.ph/"><strong>University of San Jose - Recoletos</strong></a>
+                    Return this Website: <a href="https://www.usjr.edu.ph/"><strong>University of San Jose - Recoletos</strong></a>
                 </p>
             </div>
         </div>
