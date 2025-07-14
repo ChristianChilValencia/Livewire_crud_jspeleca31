@@ -21,8 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     //Route::resource('products', ProductController::class);
     Route::get('/products', \App\Livewire\ProductCrud::class)->name('products.index');
-    Route::resource('images', ImageController::class);
-    Route::post('/upload-image', [ImageUploadController::class, 'store'])->name('image.upload');
+    Route::get('/uploads', \App\Livewire\UploadCrud::class)->name('uploads.index');
 });
 
 Route::get('/', function () {
