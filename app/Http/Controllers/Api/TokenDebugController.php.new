@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
+
+class TokenDebugController extends Controller
+{
+    public function debug(Request $request)
+    {
+        $sessionToken = session('auth_token') ?? 'No session token';
+        $bearerToken = $request->bearerToken() ?? 'No bearer token';
+        
+        $debug = [
+            'session_token' => $sessionToken,
+            'bearer_token' => $bearerToken,
+            'session_user_id' => auth()->id() ?? 'Not authenticated',
+            'token_details' => null
+        ];
+        
+        // Check for custom token format in bearer token
+        if ($bearerToken && strpos($bearerToken, 'custom_token_') === 0) {
+            $tokenId = (int) str_replace('custom_token_', '', $bearerToken);
+            $token = PersonalAccessToken::find($tokenId);
+            
+            if ($token) {
+                $debug['token_details'] = [
+                    'token_id' => $token->id,
+                    'user_id' => $token->tokenable_id,
+                    'user_type' => $token->tokenable_type,
+                    'name' => $token->name,
+                    'token_name' => $token->token_name,
+                    'original_token' => $token->original_token,
+                    'abilities' => $token->abilities,
+                    'expires_at' => $token->expires_at ? $token->expires_at->format('Y-m-d H:i:s') : null,
+                    'last_used_at' => $token->last_used_at ? $token->last_used_at->format('Y-m-d H:i:s') : null,
+                    'created_at' => $token->created_at->format('Y-m-d H:i:s'),
+                ];
+            } else {
+                $debug['token_details'] = 'Custom token not found in database';
+            }
+        }
+        // Check for Sanctum token format in bearer token
+        else if ($bearerToken && strpos($bearerToken, '|') !== false) {
+            $tokenParts = explode('|', $bearerToken);
+            if (count($tokenParts) === 2) {
+                $tokenId = $tokenParts[0];
+                $token = PersonalAccessToken::find($tokenId);
+                if ($token) {
+                    $debug['token_details'] = [
+                        'token_id' => $token->id,
+                        'user_id' => $token->tokenable_id,
+                        'user_type' => $token->tokenable_type,
+                        'name' => $token->name,
+                        'token_name' => $token->token_name,
+                        'original_token' => $token->original_token,
+                        'abilities' => $token->abilities,
+                        'expires_at' => $token->expires_at ? $token->expires_at->format('Y-m-d H:i:s') : null,
+                        'last_used_at' => $token->last_used_at ? $token->last_used_at->format('Y-m-d H:i:s') : null,
+                        'created_at' => $token->created_at->format('Y-m-d H:i:s'),
+                    ];
+                } else {
+                    $debug['token_details'] = 'Sanctum token not found in database';
+                }
+            }
+        }
+        // Check for token in session
+        else if (session('auth_token')) {
+            $sessionToken = session('auth_token');
+            
+            // Handle custom token format
+            if (strpos($sessionToken, 'custom_token_') === 0) {
+                $tokenId = (int) str_replace('custom_token_', '', $sessionToken);
+                $token = PersonalAccessToken::find($tokenId);
+                
+                if ($token) {
+                    $debug['token_details'] = [
+                        'token_id' => $token->id,
+                        'user_id' => $token->tokenable_id,
+                        'user_type' => $token->tokenable_type,
+                        'name' => $token->name,
+                        'token_name' => $token->token_name,
+                        'original_token' => $token->original_token,
+                        'abilities' => $token->abilities,
+                        'expires_at' => $token->expires_at ? $token->expires_at->format('Y-m-d H:i:s') : null,
+                        'last_used_at' => $token->last_used_at ? $token->last_used_at->format('Y-m-d H:i:s') : null,
+                        'created_at' => $token->created_at->format('Y-m-d H:i:s'),
+                    ];
+                } else {
+                    $debug['token_details'] = 'Session custom token not found in database';
+                }
+            }
+            // Handle Sanctum token format
+            else if (strpos($sessionToken, '|') !== false) {
+                $tokenParts = explode('|', $sessionToken);
+                if (count($tokenParts) === 2) {
+                    $tokenId = $tokenParts[0];
+                    $token = PersonalAccessToken::find($tokenId);
+                    if ($token) {
+                        $debug['token_details'] = [
+                            'token_id' => $token->id,
+                            'user_id' => $token->tokenable_id,
+                            'user_type' => $token->tokenable_type,
+                            'name' => $token->name,
+                            'token_name' => $token->token_name,
+                            'original_token' => $token->original_token,
+                            'abilities' => $token->abilities,
+                            'expires_at' => $token->expires_at ? $token->expires_at->format('Y-m-d H:i:s') : null,
+                            'last_used_at' => $token->last_used_at ? $token->last_used_at->format('Y-m-d H:i:s') : null,
+                            'created_at' => $token->created_at->format('Y-m-d H:i:s'),
+                        ];
+                    } else {
+                        $debug['token_details'] = 'Session Sanctum token not found in database';
+                    }
+                }
+            }
+        }
+        
+        return response()->json($debug);
+    }
+}

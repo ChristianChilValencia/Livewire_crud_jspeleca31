@@ -1,19 +1,38 @@
 <?php
+
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ApiPostController;
 use App\Http\Controllers\Api\ApiCommentController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ProductApiController;
 
+// 🔓 Public Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/debug-token', [\App\Http\Controllers\Api\TokenDebugController::class, 'debug']);
 
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+// Simple test route to verify token authentication
+Route::get('/test-auth', function() {
+    return response()->json([
+        'message' => 'You are authenticated!',
+        'user' => auth()->user()
+    ]);
+})->middleware('auth:api');
 
-Route::middleware('auth:sanctum')->group(function () {
+// 🔐 Protected Routes (requires API token)
+Route::middleware(['auth:api'])->group(function () {
+
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // 📌 Posts
     Route::apiResource('posts', ApiPostController::class);
-    Route::post('comments', [ApiCommentController::class, 'store']);
-    Route::put('comments/{comment}', [ApiCommentController::class, 'update']);
-    Route::delete('comments/{comment}', [ApiCommentController::class,'destroy']);
+
+    // 💬 Comments
+    Route::post('/comments', [ApiCommentController::class, 'store']);
+    Route::put('/comments/{comment}', [ApiCommentController::class, 'update']);
+    Route::delete('/comments/{comment}', [ApiCommentController::class, 'destroy']);
+
+    // 📦 Products
+    Route::apiResource('products', ProductApiController::class);
 });
-Route::get('/posts', [ApiPostController::class, 'index']);

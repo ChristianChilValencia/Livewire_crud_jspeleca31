@@ -2,28 +2,24 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ProductController;
-
-use App\Http\Controllers\ImageUploadController;
-use App\Http\Controllers\ImageController;
-
-use App\Http\Controllers\AuthController;
+// Livewire Components
+use App\Livewire\Auth\UserAuth;
+use App\Livewire\ProductCrud;
+use App\Livewire\UploadCrud;
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/login', UserAuth::class)->name('login');
+    Route::get('/register', function() {
+        return view('livewire.auth.user-auth', ['isLogin' => false]);
+    })->name('register');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    //Route::resource('products', ProductController::class);
-    Route::get('/products', \App\Livewire\ProductCrud::class)->name('products.index');
-    Route::get('/uploads', \App\Livewire\UploadCrud::class)->name('uploads.index');
+    Route::get('/products', ProductCrud::class)->name('products');
+    Route::get('/uploads', UploadCrud::class)->name('uploads.index');
 });
 
 Route::get('/', function () {
- return redirect(route('products.index')); 
+    return redirect(route('products')); 
 });

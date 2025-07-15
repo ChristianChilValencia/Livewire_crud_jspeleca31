@@ -28,10 +28,7 @@
                             <span class="nav-link">Welcome, {{ Auth::user()->name }}</span>
                         </li>
                         <li class="nav-item">
-                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-link nav-link">Logout</button>
-                            </form>
+                            @livewire('auth.logout')
                         </li>
                     @endguest
                 </ul>
