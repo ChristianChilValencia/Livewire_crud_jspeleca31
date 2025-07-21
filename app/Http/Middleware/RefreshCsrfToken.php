@@ -17,16 +17,28 @@ class RefreshCsrfToken
      */
     public function handle(Request $request, Closure $next)
     {
-        // If the user is authenticated and the session doesn't have a CSRF token
-        // or we're coming from an API authentication
-        if (Auth::check() && (!session()->has('_token') || session()->get('auth_source') === 'api')) {
-            // Regenerate the CSRF token
+        // Always ensure there's a valid CSRF token in the session
+        // This prevents "page expired" errors by being proactive
+        if (!session()->has('_token')) {
             session()->regenerateToken();
-            
-            // Mark that we've refreshed the token
-            session()->put('auth_source', 'web');
         }
         
-        return $next($request);
+        // For Livewire requests, always refresh the CSRF token to ensure it's valid
+        if ($request->hasHeader('X-Livewire')) {
+            // Store the token in a variable to make sure it's accessible
+            $token = session()->token();
+            // Update the request with the current token
+            $request->headers->set('X-CSRF-TOKEN', $token);
+        }
+        
+        // Handle the response
+        $response = $next($request);
+        
+        // If this is a Livewire response, make sure it has the latest token
+        if ($request->hasHeader('X-Livewire') && method_exists($response, 'header')) {
+            $response->header('X-CSRF-TOKEN', session()->token());
+        }
+        
+        return $response;
     }
 }

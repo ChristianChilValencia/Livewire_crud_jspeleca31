@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Register the RefreshCsrfToken middleware to prevent CSRF token mismatches
+        $middleware->web(append: [
+            \App\Http\Middleware\RefreshCsrfToken::class,
+            \App\Http\Middleware\LivewireCsrfFix::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

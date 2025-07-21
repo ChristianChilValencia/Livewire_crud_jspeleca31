@@ -23,6 +23,11 @@ class AppManager extends Component
     
     public $productId, $code, $quantity, $price, $description, $image, $oldImage;
     public $isEdit = false, $showModal = false, $showViewModal = false, $showDeleteModal = false, $deleteId = null;
+    
+    protected $listeners = [
+        'loggedIn' => '$refresh', 
+        'loggedOut' => '$refresh'
+    ];
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -39,13 +44,11 @@ class AppManager extends Component
 
     public function render()
     {
-        if (!Auth::check()) {
-            return view('livewire.auth-manager');
-        }
-
-        return view('livewire.product-crud', [
-            'products' => Product::latest()->paginate(4)
-        ]);
+        $view = Auth::check() 
+            ? view('livewire.product-crud', ['products' => Product::latest()->paginate(4)])
+            : view('livewire.auth-manager');
+            
+        return $view;
     }
 
     public function switchAuthMode($mode)
@@ -74,11 +77,17 @@ class AppManager extends Component
         }
 
         if (Auth::attempt($credentials)) {
-            session()->regenerate();
-            return redirect('/');
+            // Store current token to preserve it
+            $token = csrf_token();
+            
+            // Auth::attempt can regenerate the session, but we'll restore the token
+            session()->put('_token', $token);
+            
+            $this->reset(['password']);
+            $this->dispatch('loggedIn');
+        } else {
+            $this->addError('email', 'The provided credentials do not match our records.');
         }
-
-        $this->addError('email', 'The provided credentials do not match our records.');
     }
 
     public function register()
@@ -99,11 +108,17 @@ class AppManager extends Component
                 'password' => Hash::make($validated['password']),
             ]);
 
-            Auth::login($user);
-            return redirect('/');
+            // Instead of logging in, redirect to login form with success message
+            $this->reset(['password', 'password_confirmation']);
+            $this->authMode = 'login';
+            
+            // Set a success message to inform the user
+            session()->flash('success', 'Registration successful! Please log in with your new account.');
+            
+            // Reset the form fields
+            $this->reset(['name']);
         } catch (\Exception $e) {
             $this->authError = 'Registration failed. Please check your information and try again.';
-            return;
         }
     }
 

@@ -26,10 +26,24 @@ class LogoutButton extends Component
 
     public function logout()
     {
-        Auth::logout();
-        session()->invalidate();
-        session()->regenerateToken();
+        // Store current auth state
+        $wasLoggedIn = Auth::check();
         
-        return redirect('/');
+        // Get the current CSRF token before logout
+        $token = csrf_token();
+        
+        // Perform logout
+        Auth::logout();
+        
+        // Manually set the token back to what it was before logout
+        session()->put('_token', $token);
+        
+        // Close the modal
+        $this->showLogoutModal = false;
+        
+        // Emit event to tell other components to refresh
+        if ($wasLoggedIn) {
+            $this->dispatch('loggedOut');
+        }
     }
 }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Simple Laravel 11 CRUD Application Tutorial</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -15,20 +16,7 @@
             <a class="navbar-brand" href="{{ url('/') }}">{{ config('app.name', 'Laravel') }}</a>
             
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto">
-                    @guest
-                        <li class="nav-item">
-                            <span class="nav-link">Please login to continue</span>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <span class="nav-link">Welcome, {{ Auth::user()->name }}</span>
-                        </li>
-                        <li class="nav-item">
-                            <livewire:logout-button />
-                        </li>
-                    @endguest
-                </ul>
+                <livewire:navigation-menu />
             </div>
         </div>
     </nav>

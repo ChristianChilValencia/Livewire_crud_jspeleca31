@@ -10,9 +10,16 @@
                         </div>
                     @endif
                     
+                    @if(session()->has('success'))
+                        <div class="alert alert-success mb-3">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    
                     @if($authMode == 'login')
                             <!-- Login Form -->
                             <form wire:submit.prevent="login">
+                                @csrf
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address</label>
                                     <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" wire:model="email" required autofocus>
@@ -41,6 +48,7 @@
                         @else
                             <!-- Register Form -->
                             <form wire:submit.prevent="register">
+                                @csrf
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Name</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" wire:model="name" required autofocus>
