@@ -19,6 +19,7 @@ class AppManager extends Component
 
     public $name, $email, $password, $password_confirmation;
     public $authMode = 'login';
+    public $authError = null;
     
     public $productId, $code, $quantity, $price, $description, $image, $oldImage;
     public $isEdit = false, $showModal = false, $showViewModal = false, $showDeleteModal = false, $deleteId = null;
@@ -51,15 +52,26 @@ class AppManager extends Component
     {
         $this->authMode = $mode;
         $this->resetValidation();
+        $this->authError = null;
         $this->reset(['name', 'email', 'password', 'password_confirmation']);
     }
 
     public function login()
     {
+        $this->authError = null;
+        
         $credentials = $this->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
+
+        // Check if the email exists in the database
+        $user = User::where('email', $credentials['email'])->first();
+        
+        if (!$user) {
+            $this->authError = 'This email is not registered in our system. Please register first.';
+            return;
+        }
 
         if (Auth::attempt($credentials)) {
             session()->regenerate();
@@ -71,21 +83,28 @@ class AppManager extends Component
 
     public function register()
     {
-        $validated = $this->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|same:password_confirmation',
-            'password_confirmation' => 'required',
-        ]);
+        $this->authError = null;
+        
+        try {
+            $validated = $this->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|same:password_confirmation',
+                'password_confirmation' => 'required',
+            ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
 
-        Auth::login($user);
-        return redirect('/');
+            Auth::login($user);
+            return redirect('/');
+        } catch (\Exception $e) {
+            $this->authError = 'Registration failed. Please check your information and try again.';
+            return;
+        }
     }
 
     public function resetFields()
