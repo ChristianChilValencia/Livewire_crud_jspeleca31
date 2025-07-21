@@ -18,20 +18,14 @@
                 <ul class="navbar-nav ms-auto">
                     @guest
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">Register</a>
+                            <span class="nav-link">Please login to continue</span>
                         </li>
                     @else
                         <li class="nav-item">
                             <span class="nav-link">Welcome, {{ Auth::user()->name }}</span>
                         </li>
                         <li class="nav-item">
-                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-link nav-link">Logout</button>
-                            </form>
+                            <livewire:logout-button />
                         </li>
                     @endguest
                 </ul>

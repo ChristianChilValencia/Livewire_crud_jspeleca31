@@ -38,7 +38,7 @@
                             <td>
                                 <button class="btn btn-info btn-sm" wire:click="show({{ $product->id }})">View</button>
                                 <button class="btn btn-primary btn-sm" wire:click="edit({{ $product->id }})">Edit</button>
-                                <button class="btn btn-danger btn-sm" wire:click="delete({{ $product->id }})" onclick="return confirm('Are you sure?')">Delete</button>
+                                <button class="btn btn-danger btn-sm" wire:click="confirmDelete({{ $product->id }})">Delete</button>
                             </td>
                         </tr>
                     @empty
@@ -129,6 +129,27 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" wire:click="closeModal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    
+    <!-- Delete Confirmation Modal -->
+    @if($showDeleteModal)
+        <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Confirmation</h5>
+                        <button type="button" class="btn-close" wire:click="cancelDelete"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this product?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" wire:click="cancelDelete">Cancel</button>
+                        <button type="button" class="btn btn-danger" wire:click="delete">Delete</button>
                     </div>
                 </div>
             </div>
