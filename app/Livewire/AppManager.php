@@ -17,21 +17,17 @@ class AppManager extends Component
 {
     use WithPagination, WithFileUploads;
 
-    // For authentication
     public $name, $email, $password, $password_confirmation;
-    public $authMode = 'login'; // 'login' or 'register'
+    public $authMode = 'login';
     
-    // For product CRUD
     public $productId, $code, $quantity, $price, $description, $image, $oldImage;
     public $isEdit = false, $showModal = false, $showViewModal = false, $showDeleteModal = false, $deleteId = null;
 
     protected $rules = [
-        // Auth rules
         'name' => 'required|string|max:255',
         'email' => 'required|email|max:255',
         'password' => 'required|min:8',
         
-        // Product rules
         'code' => 'required|string|max:255',
         'name' => 'required|string|max:255',
         'quantity' => 'required|integer',
@@ -51,7 +47,6 @@ class AppManager extends Component
         ]);
     }
 
-    // Authentication Methods
     public function switchAuthMode($mode)
     {
         $this->authMode = $mode;
@@ -93,7 +88,6 @@ class AppManager extends Component
         return redirect('/');
     }
 
-    // Product CRUD Methods
     public function resetFields()
     {
         $this->productId = null;
